@@ -1,79 +1,87 @@
 # 🖼️ Pollinations Image Proxy API
 
-A lightweight proxy service compatible with the OpenAI `/v1/images/generations` endpoint. It forwards OpenAI-style image generation requests to [Pollinations](https://image.pollinations.ai), ideal for local deployment and microservice architecture.
+A lightweight proxy service compatible with the OpenAI `/v1/images/generations` endpoint. It forwards OpenAI-style image generation requests to [Pollinations](https://image.pollinations.ai).
 
 ## 🚀 Features
 
-- ✅ **OpenAI-style Compatibility**: Accepts `prompt` request body format.
-- 🔐 **API Key Protection**: Requires `Authorization: Bearer pollinations` header.
-- 🐳 **Docker Ready**: Lightweight image for microservice deployment.
-- ⚡ **Built with FastAPI**: High performance with automatic OpenAPI documentation.
+- ✅ OpenAI-style Compatibility
+- 🔐 Requires `Authorization: Bearer pollinations`
+- 🐳 Docker & non-Docker ready
+- ⚡ Built with FastAPI
 
 ## 📦 Project Structure
 
 ```
 .
-├── main.py             # FastAPI app entry
-├── requirements.txt    # Python dependencies
-├── Dockerfile          # Docker build file
-└── README.md           # Project documentation
+├── main.py
+├── requirements.txt
+├── Dockerfile
+└── README.md
 ```
 
 ## 🛠️ Quick Start
 
-### 1. Clone the repo
+### 🔧 Run Without Docker
 
 ```bash
-git clone https://github.com/yourname/pollinations-api-proxy.git
-cd pollinations-api-proxy
+pip install -r requirements.txt
+uvicorn main:app --host 0.0.0.0 --port 5000
 ```
 
-### 2. Build Docker image
+### 🐳 Run with Docker
 
 ```bash
 docker build -t pollinations-api .
-```
-
-### 3. Run the container
-
-```bash
 docker run -d -p 5000:5000 pollinations-api
 ```
 
-## 📡 API Endpoint
+### 🔑 API Key
 
-### POST `/v1/images/generations`
+All requests must include the following header:
 
-**Headers:**
 ```
 Authorization: Bearer pollinations
-Content-Type: application/json
 ```
 
-**Request Body:**
+## 📡 API
+
+**POST** `/v1/images/generations`
+
+### Request Body
+
 ```json
 {
-  "prompt": "a futuristic city with flying cars"
+  "prompt": "a futuristic city with flying cars",
+  "width": 512,
+  "height": 512,
+  "model": "flux",
+  "enhance": true
 }
 ```
 
-**Response Body:**
-```json
-{
-  "created": 1713945600,
-  "data": [
-    {
-      "url": "https://image.pollinations.ai/prompt/a futuristic city with flying cars"
-    }
-  ]
-}
-```
+### Parameters
 
-## 🧪 Example Request
+| Name     | Type    | Default | Description |
+|----------|---------|---------|-------------|
+| prompt   | string  | —       | Text description of the image to generate |
+| width    | integer | 512     | Image width in pixels |
+| height   | integer | 512     | Image height in pixels |
+| model    | string  | flux    | The AI model to employ for image generation (see below) |
+| enhance  | boolean | false   | Apply high-resolution enhancement to the generated image |
 
-```bash
-curl -X POST http://localhost:5000/v1/images/generations   -H "Authorization: Bearer pollinations"   -H "Content-Type: application/json"   -d '{"prompt": "a robot playing violin in a concert hall"}'
-```
+### Model Options
+
+The `model` field influences both quality and generation style:
+
+- `flux`: General purpose, good quality (default)
+- `flux-pro`: General, best quality but slower
+- `flux-realism`: Realistically styled images without artistic embellishments
+- `flux-anime`: Ideal for anime, manga, and comic styles
+- `flux-3d`: Best for intricate 3D-like scenes
+- `flux-cablyai`: General purpose with Cablyai inference engine
+- `turbo`: Medium to low quality, but marginally faster
+
+Choose a task-specific model if your prompt is closely aligned with one of these styles. Otherwise, `flux` is a solid general-purpose choice.
 
 ## 📄 License
 
